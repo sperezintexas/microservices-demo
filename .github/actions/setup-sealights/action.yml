@@ -93,7 +93,7 @@ runs:
       id: generate-session
       shell: bash
       env:
-        SL_TOKEN: ${{ secrets.SL_TOKEN }}
+        SL_TOKEN: ${{ inputs.sl_token }}
         SL_APPNAME: ${{ inputs.app_name }}
         SL_BUILDNAME: ${{ inputs.build_name }}
         SL_BRANCHNAME: ${{ inputs.branch_name }}
