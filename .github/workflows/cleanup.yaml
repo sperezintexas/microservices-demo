@@ -38,7 +38,7 @@ jobs:
           NAMESPACE="pr${PR_NUMBER}"
           kubectl delete namespace $NAMESPACE
         env:
-          PROJECT_ID: "online-boutique-ci"
+          PROJECT_ID: "microservices-demo-464120"
           PR_CLUSTER: "prs-gke-cluster"
           REGION: "us-central1"
           PR_NUMBER: ${{ github.event.number }}

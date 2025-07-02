@@ -1,12 +1,12 @@
-# Development Guide 
+# Development Guide
 
-This doc explains how to build and run the Online Boutique source code locally using the `skaffold` command-line tool.  
+This doc explains how to build and run the Online Boutique source code locally using the `skaffold` command-line tool.
 
 ## Prerequisites
 
 - [Docker for Desktop](https://www.docker.com/products/docker-desktop)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) (can be installed via `gcloud components install kubectl` for Option 1 - GKE)
-- [skaffold **2.0.2+**](https://skaffold.dev/docs/install/) (latest version recommended), a tool that builds and deploys Docker images in bulk. 
+- [skaffold **2.0.2+**](https://skaffold.dev/docs/install/) (latest version recommended), a tool that builds and deploys Docker images in bulk.
 - Clone the repository.
     ```sh
     git clone https://github.com/GoogleCloudPlatform/microservices-demo
@@ -16,10 +16,20 @@ This doc explains how to build and run the Online Boutique source code locally u
 - [Minikube](https://minikube.sigs.k8s.io/docs/start/) (optional for Option 2 - Local Cluster)
 - [Kind](https://kind.sigs.k8s.io/) (optional for Option 2 - Local Cluster)
 
+### Additional Prerequisites for Local Development
+
+If you want to build and test individual services locally (outside of Docker containers), you'll need the appropriate language runtimes:
+
+- **.NET 9.0 SDK** - Required for the cartservice (C#). See [.NET Setup Guide for Mac](dotnet-setup-mac.md) for installation instructions.
+- **Go** - Required for frontend, productcatalogservice, shippingservice, and checkoutservice
+- **Node.js** - Required for currencyservice and paymentservice
+- **Python** - Required for emailservice, recommendationservice, and loadgenerator
+- **Java** - Required for adservice
+
 ## Option 1: Google Kubernetes Engine (GKE)
 
 > 💡 Recommended if you're using Google Cloud and want to try it on
-> a realistic cluster. **Note**: If your cluster has Workload Identity enabled, 
+> a realistic cluster. **Note**: If your cluster has Workload Identity enabled,
 > [see these instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#enable)
 
 1.  Create a Google Kubernetes Engine cluster and make sure `kubectl` is pointing
@@ -51,7 +61,7 @@ This doc explains how to build and run the Online Boutique source code locally u
     ```
 
     ```sh
-    gcloud auth configure-docker -q 
+    gcloud auth configure-docker -q
     ```
 
 3.  In the root of this repository, run `skaffold run --default-repo=us-docker.pkg.dev/[PROJECT_ID]/microservices-demo`,
@@ -77,7 +87,7 @@ This doc explains how to build and run the Online Boutique source code locally u
 
 5.  Navigate to `http://EXTERNAL-IP` to access the web frontend.
 
-## Option 2 - Local Cluster 
+## Option 2 - Local Cluster
 
 1. Launch a local Kubernetes cluster with one of the following tools:
 

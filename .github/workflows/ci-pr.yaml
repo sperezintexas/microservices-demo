@@ -89,7 +89,7 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         PR_NUMBER: ${{ github.event.pull_request.number }}
-        PROJECT_ID: "online-boutique-ci"
+        PROJECT_ID: "microservices-demo-464120"
         PR_CLUSTER: "prs-gke-cluster"
         REGION: "us-central1"
     - name: Wait For Pods
