@@ -104,12 +104,15 @@ runs:
 
         case "$TECH_STACK" in
           "java"|"dotnet")
+            echo "SL.config running $TECH_STACK config command for: $SL_PACKAGE_INCLUDES, to generate session ID..."
             java -jar sealights/sl-build-scanner.jar -config \
               -appname "$SL_APPNAME" \
               -buildname "$SL_BUILDNAME" \
               -branchname "$SL_BRANCHNAME" \
               -token "$SL_TOKEN" \
               -pi "$SL_PACKAGE_INCLUDES"
+            echo "Output from SL.config command (session ID should be in buildSessionId.txt):"
+            cat buildSessionId.txt
             ;;
           "nodejs")
             # For Node.js, you might need different session generation
