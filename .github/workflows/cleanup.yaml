@@ -39,6 +39,6 @@ jobs:
           kubectl delete namespace $NAMESPACE
         env:
           PROJECT_ID: "microservices-demo-464120"
-          PR_CLUSTER: "prs-gke-cluster"
+          PR_CLUSTER: "demo"
           REGION: "us-central1"
           PR_NUMBER: ${{ github.event.number }}

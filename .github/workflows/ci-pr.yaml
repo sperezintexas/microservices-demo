@@ -90,7 +90,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         PR_NUMBER: ${{ github.event.pull_request.number }}
         PROJECT_ID: "microservices-demo-464120"
-        PR_CLUSTER: "prs-gke-cluster"
+        PR_CLUSTER: "demo"
         REGION: "us-central1"
     - name: Wait For Pods
       timeout-minutes: 20
