@@ -54,9 +54,11 @@ runs:
             echo "agent-path=./sealights" >> $GITHUB_OUTPUT
             ;;
           "dotnet")
-            wget -nv https://agents.sealights.co/sealights-dotnet/sealights-dotnet-latest.zip
-            unzip -oq sealights-dotnet-latest.zip -d sealights
-            echo "SeaLights .NET Agent downloaded"
+            echo "Downloading SeaLights .NET Core Agent..."
+            wget -nv https://agents.sealights.co/dotnetcore/latest/sealights-dotnet-agent-linux-self-contained.tar.gz
+            mkdir -p sealights
+            tar -xzf sealights-dotnet-agent-linux-self-contained.tar.gz -C sealights
+            echo "SeaLights .NET Core Agent downloaded"
             echo "agent-path=./sealights" >> $GITHUB_OUTPUT
             ;;
           "nodejs")
@@ -99,18 +101,33 @@ runs:
         SL_BRANCHNAME: ${{ inputs.branch_name }}
         SL_PACKAGE_INCLUDES: ${{ inputs.package_includes }}
         TECH_STACK: ${{ inputs.tech_stack }}
+        SEALIGHTS_URL: "sperez.sealights.co"
       run: |
         echo "Generating SeaLights Session ID for $TECH_STACK..."
+        echo "see app [$SL_APPNAME $SL_BUILDNAME $SL_BRANCHNAME]..."
 
         case "$TECH_STACK" in
-          "java"|"dotnet")
-            echo "SL.config running $TECH_STACK config command for: $SL_PACKAGE_INCLUDES, to generate session ID..."
+          "java")
+            echo "SL.config running [$TECH_STACK] config command for [$SL_PACKAGE_INCLUDES], to generate session ID..."
             java -jar sealights/sl-build-scanner.jar -config \
               -appname "$SL_APPNAME" \
               -buildname "$SL_BUILDNAME" \
               -branchname "$SL_BRANCHNAME" \
               -token "$SL_TOKEN" \
               -pi "$SL_PACKAGE_INCLUDES"
+
+            echo "Output from SL.config command (session ID should be in buildSessionId.txt):"
+            cat buildSessionId.txt
+            ;;
+          "dotnet")
+            echo "SL.config running [$TECH_STACK] .NET Core config command for [$SL_PACKAGE_INCLUDES], to generate session ID..."
+            java -jar sealights/sl-build-scanner.jar -config \
+              -appname "$SL_APPNAME" \
+              -buildname "$SL_BUILDNAME" \
+              -branchname "$SL_BRANCHNAME" \
+              -token "$SL_TOKEN" \
+              -pi "$SL_PACKAGE_INCLUDES"
+
             echo "Output from SL.config command (session ID should be in buildSessionId.txt):"
             cat buildSessionId.txt
             ;;
