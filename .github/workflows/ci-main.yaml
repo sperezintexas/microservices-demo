@@ -56,6 +56,9 @@ jobs:
         project_id: microservices-demo-464120
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
+    - name: Install gke-gcloud-auth-plugin
+      run: |
+        gcloud components install gke-gcloud-auth-plugin
     - name: Install Skaffold
       run: |
         curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
