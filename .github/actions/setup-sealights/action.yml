@@ -21,8 +21,12 @@ inputs:
     required: false
     default: "java"
   sl_token:
-    description: 'SeaLights token'
+    description: 'SeaLights token (agent token preferred for build scanning)'
     required: true
+  skip_build_scan:
+    description: 'Skip build scanning if token role is incompatible'
+    required: false
+    default: "false"
 
 outputs:
   session-id:
@@ -89,7 +93,7 @@ runs:
       id: generate-session
       shell: bash
       env:
-        SL_TOKEN: ${{ inputs.sl_token }}
+        SL_TOKEN: ${{ secrets.SL_TOKEN }}
         SL_APPNAME: ${{ inputs.app_name }}
         SL_BUILDNAME: ${{ inputs.build_name }}
         SL_BRANCHNAME: ${{ inputs.branch_name }}
