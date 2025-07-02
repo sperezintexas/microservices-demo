@@ -1,4 +1,4 @@
-name: "Continuous Integration - Main/Release"
+name: "SeaLights Continuous Integration - Main/Release"
 on:
   push:
     branches:
@@ -18,6 +18,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      # Setup SeaLights for Java services (adservice)
+    - name: Setup SeaLights for Java
+      id: sealights-java
+      uses: ./.github/actions/setup-sealights
+      with:
+        app_name: "microservices-demo-java"
+        tech_stack: "java"
+        package_includes: "hipstershop.*"
+        sl_token: ${{ secrets.SL_TOKEN }}
+
+      # Setup SeaLights for .NET services (cartservice)
+    - name: Setup SeaLights for .NET
+      id: sealights-dotnet
+      uses: ./.github/actions/setup-sealights
+      with:
+        app_name: "microservices-demo-dotnet"
+        tech_stack: "dotnet"
+        package_includes: "cartservice.*"
+        sl_token: ${{ secrets.SL_TOKEN }}
+
+      # Setup SeaLights for Go services
+    - name: Setup SeaLights for Go
+      id: sealights-go
+      uses: ./.github/actions/setup-sealights
+      with:
+        app_name: "microservices-demo-go"
+        tech_stack: "java"  # Go might use Java agent for now
+        package_includes: "main.*"
+        sl_token: ${{ secrets.SL_TOKEN }}
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:

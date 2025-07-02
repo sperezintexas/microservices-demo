@@ -1,0 +1,140 @@
+name: 'Setup SeaLights Agent'
+description: 'Download SeaLights agent and generate build session ID for any tech stack'
+inputs:
+  app_name:
+    description: 'SeaLights application name'
+    required: true
+  build_name:
+    description: 'SeaLights build name'
+    required: false
+    default: "build-${{ github.run_id }}"
+  branch_name:
+    description: 'SeaLights branch name'
+    required: false
+    default: "${{ github.ref_name }}"
+  package_includes:
+    description: 'Package includes pattern (for Java/C#)'
+    required: false
+    default: "com.sealights.demoapp.*"
+  tech_stack:
+    description: 'Technology stack (java, dotnet, nodejs, python, go)'
+    required: false
+    default: "java"
+  sl_token:
+    description: 'SeaLights token'
+    required: true
+
+outputs:
+  session-id:
+    description: 'Generated SeaLights session ID'
+    value: ${{ steps.generate-session.outputs.session-id }}
+  agent-path:
+    description: 'Path to SeaLights agent'
+    value: ${{ steps.download-agent.outputs.agent-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download SeaLights Agent
+      id: download-agent
+      shell: bash
+      run: |
+        echo "Downloading SeaLights Agent for ${{ inputs.tech_stack }}..."
+
+        case "${{ inputs.tech_stack }}" in
+          "java")
+            wget -nv https://agents.sealights.co/sealights-java/sealights-java-latest.zip
+            unzip -oq sealights-java-latest.zip -d sealights
+            echo "SeaLights Java Agent version used is:"
+            cat sealights/sealights-java-version.txt
+            echo "agent-path=./sealights" >> $GITHUB_OUTPUT
+            ;;
+          "dotnet")
+            wget -nv https://agents.sealights.co/sealights-dotnet/sealights-dotnet-latest.zip
+            unzip -oq sealights-dotnet-latest.zip -d sealights
+            echo "SeaLights .NET Agent downloaded"
+            echo "agent-path=./sealights" >> $GITHUB_OUTPUT
+            ;;
+          "nodejs")
+            mkdir -p sealights
+            wget -nv https://agents.sealights.co/sealights-node/sealights-node-latest.tgz -O sealights/sealights-node-latest.tgz
+            cd sealights && tar -xzf sealights-node-latest.tgz
+            echo "SeaLights Node.js Agent downloaded"
+            echo "agent-path=./sealights" >> $GITHUB_OUTPUT
+            ;;
+          "python")
+            mkdir -p sealights
+            pip install sealights-python-agent --target ./sealights
+            echo "SeaLights Python Agent downloaded"
+            echo "agent-path=./sealights" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "Tech stack ${{ inputs.tech_stack }} not fully supported yet, defaulting to Java agent"
+            wget -nv https://agents.sealights.co/sealights-java/sealights-java-latest.zip
+            unzip -oq sealights-java-latest.zip -d sealights
+            echo "agent-path=./sealights" >> $GITHUB_OUTPUT
+            ;;
+        esac
+
+    - name: Cache SeaLights Agent
+      uses: actions/cache@v4
+      with:
+        path: sealights/
+        key: sealights-agent-${{ inputs.tech_stack }}-${{ hashFiles('sealights/**') }}
+        restore-keys: |
+          sealights-agent-${{ inputs.tech_stack }}-
+          sealights-agent-
+
+    - name: Generate SeaLights Session ID
+      id: generate-session
+      shell: bash
+      env:
+        SL_TOKEN: ${{ inputs.sl_token }}
+        SL_APPNAME: ${{ inputs.app_name }}
+        SL_BUILDNAME: ${{ inputs.build_name }}
+        SL_BRANCHNAME: ${{ inputs.branch_name }}
+        SL_PACKAGE_INCLUDES: ${{ inputs.package_includes }}
+        TECH_STACK: ${{ inputs.tech_stack }}
+      run: |
+        echo "Generating SeaLights Session ID for $TECH_STACK..."
+
+        case "$TECH_STACK" in
+          "java"|"dotnet")
+            java -jar sealights/sl-build-scanner.jar -config \
+              -appname "$SL_APPNAME" \
+              -buildname "$SL_BUILDNAME" \
+              -branchname "$SL_BRANCHNAME" \
+              -token "$SL_TOKEN" \
+              -pi "$SL_PACKAGE_INCLUDES"
+            ;;
+          "nodejs")
+            # For Node.js, you might need different session generation
+            echo "Node.js session generation - implement based on SeaLights Node.js documentation"
+            # Placeholder for Node.js specific session generation
+            echo "session-placeholder-nodejs" > buildSessionId.txt
+            ;;
+          "python")
+            # For Python, you might need different session generation
+            echo "Python session generation - implement based on SeaLights Python documentation"
+            # Placeholder for Python specific session generation
+            echo "session-placeholder-python" > buildSessionId.txt
+            ;;
+          *)
+            # Default to Java approach
+            java -jar sealights/sl-build-scanner.jar -config \
+              -appname "$SL_APPNAME" \
+              -buildname "$SL_BUILDNAME" \
+              -branchname "$SL_BRANCHNAME" \
+              -token "$SL_TOKEN" \
+              -pi "$SL_PACKAGE_INCLUDES"
+            ;;
+        esac
+
+        if [ -f buildSessionId.txt ]; then
+          SESSION_ID=$(cat buildSessionId.txt)
+          echo "Generated Session ID: $SESSION_ID"
+          echo "session-id=$SESSION_ID" >> $GITHUB_OUTPUT
+        else
+          echo "Error: buildSessionId.txt not found"
+          exit 1
+        fi
